@@ -1,0 +1,8 @@
+.venv/
+.idea/
+.vscode/
+__pycaches__/
+./Normalized_csv_files
+./Temp
+./Output
+
