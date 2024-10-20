@@ -92,6 +92,7 @@ def normalizing_csv_files(input_csv_folder, output_normalized_csv_folder):
             output_file_path = os.path.join(output_normalized_csv_folder, output_file_name)
             normalize_csv(input_file_path, output_file_path)
 
+# chuẩn hoá file csv now
 normalizing_csv_files(temp_folder, normalized_csv_folder)
 
 
