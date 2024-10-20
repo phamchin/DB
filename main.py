@@ -2,6 +2,8 @@ import csv
 import os
 import re
 
+import pandas as pd
+
 # Directory
 input_folder = r"./DB files"
 temp_folder = r"./Temp"
@@ -93,10 +95,11 @@ def normalizing_csv_files(input_csv_folder, output_normalized_csv_folder):
 normalizing_csv_files(temp_folder, normalized_csv_folder)
 
 
-# Đọc file CSV đã chuẩn hóa vào DataFrame
-df = pd.read_csv(normalized_file, header=None)
+# DataFrame
 
-# Định nghĩa hàm để phân loại các nhóm
+# Hàm phân loại nhóm dữ liệu trong db
+
+# Hàm định nghĩa phân loại các nhóm bài đo khác nhau
 def classify_category(value):
     if value.startswith('/GDpa') or value.startswith('/GMpa'):
         return 'pa'
@@ -107,42 +110,50 @@ def classify_category(value):
     else:
         return 'other'
 
-# Thêm một cột mới 'category' dựa trên giá trị của cột đầu tiên
-df['category'] = df[0].apply(classify_category)
+# Biến đổi giá trị hexa sang dạng số thập phân
+def hex_to_dec(hex_value):
+    return int(hex_value, 16)
 
-# Chia DataFrame thành các DataFrame con dựa trên giá trị của cột 'category'
-df_pa = df[df['category'] == 'pa']
-df_tx = df[df['category'] == 'tx']
-df_rx = df[df['category'] == 'rx']
-df_other = df[df['category'] == 'other']
+# Hàm xử lý dataframe với file csv
+def csv_df(input_csv_normalized):
+    # Đọc file CSV đã chuẩn hóa vào DataFrame
+    df = pd.read_csv(input_csv_normalized, header=None)
 
-# Loại bỏ cột 'category' nếu không cần thiết
-df_pa = df_pa.drop(columns=['category'])
-df_tx = df_tx.drop(columns=['category'])
-df_rx = df_rx.drop(columns=['category'])
-df_other = df_other.drop(columns=['category'])
+    # Thêm một cột mới 'category' dựa trên giá trị của cột đầu tiên
+    df['category'] = df[0].apply(classify_category)
 
-# In kết quả để kiểm tra
-print("DataFrame con chứa PA:")
-print(df_pa)
+    # Chia DataFrame thành các DataFrame con dựa trên giá trị của cột 'category'
+    df_pa = df[df['category'] == 'pa']
+    df_tx = df[df['category'] == 'tx']
+    df_rx = df[df['category'] == 'rx']
+    df_other = df[df['category'] == 'other']
 
-#
-# df.to_csv('output.csv', index=False)
-# df_tx.to_csv('df_tx_hex.csv', index=False)
-#
-# def matches_pattern(value):
-#     pattern = r"^/tx:\d+/\d+W/stepAtt/freqTab$"
-#     return re.match(pattern, value) is not None
-#
-# # Lọc các hàng có cột đầu tiên khớp với mẫu
-# matching_rows = df_tx[df_tx[0].apply(matches_pattern)]
-#
-# # Biến đổi giá trị hexa sang dạng số thập phân
-# def hex_to_dec(hex_value):
-#     return int(hex_value, 16)
-#
-# # Duyệt qua các hàng khớp và biến đổi giá trị hexa
-# for index, row in matching_rows.iterrows():
-#     df_tx.loc[index] = [hex_to_dec(val) if isinstance(val, str) and val.startswith('0x') else val for val in row]
-#
-# df_tx.to_csv('df_tx_dec.csv', index=False)
+    # Loại bỏ cột 'category' sau khi chia xong thành các nhóm
+    df_pa = df_pa.drop(columns=['category'])
+    df_tx = df_tx.drop(columns=['category'])
+    df_rx = df_rx.drop(columns=['category'])
+    df_other = df_other.drop(columns=['category'])
+
+    # In kết quả để kiểm tra
+    # print("DataFrame con chứa PA:")
+    # print(df_pa)
+
+    df.to_csv('output.csv', index=False)
+    df_tx.to_csv('df_tx_hex.csv', index=False)
+
+    def matches_pattern(value):
+        pattern = r"^/tx:\d+/\d+W/stepAtt/freqTab$"
+        return re.match(pattern, value) is not None
+
+    # Lọc các hàng có cột đầu tiên khớp với mẫu
+    matching_rows = df_tx[df_tx[0].apply(matches_pattern)]
+
+
+    # Duyệt qua các hàng khớp và biến đổi giá trị hexa
+    for index, row in matching_rows.iterrows():
+        df_tx.loc[index] = [hex_to_dec(val) if isinstance(val, str) and val.startswith('0x') else val for val in row]
+
+    df_tx.to_csv('df_tx_dec.csv', index=False)
+# Hàm xử lý nhiều file trong thư mục
+
+
