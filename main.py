@@ -93,39 +93,39 @@ def normalizing_csv_files(input_csv_folder, output_normalized_csv_folder):
 normalizing_csv_files(temp_folder, normalized_csv_folder)
 
 
-# # Đọc file CSV đã chuẩn hóa vào DataFrame
-# df = pd.read_csv(normalized_file, header=None)
-#
-# # Định nghĩa hàm để phân loại các nhóm
-# def classify_category(value):
-#     if value.startswith('/GDpa') or value.startswith('/GMpa'):
-#         return 'pa'
-#     elif value.startswith('/tx'):
-#         return 'tx'
-#     elif value.startswith('/rx'):
-#         return 'rx'
-#     else:
-#         return 'other'
-#
-# # Thêm một cột mới 'category' dựa trên giá trị của cột đầu tiên
-# df['category'] = df[0].apply(classify_category)
-#
-# # Chia DataFrame thành các DataFrame con dựa trên giá trị của cột 'category'
-# df_pa = df[df['category'] == 'pa']
-# df_tx = df[df['category'] == 'tx']
-# df_rx = df[df['category'] == 'rx']
-# df_other = df[df['category'] == 'other']
-#
-# # Loại bỏ cột 'category' nếu không cần thiết
-# df_pa = df_pa.drop(columns=['category'])
-# df_tx = df_tx.drop(columns=['category'])
-# df_rx = df_rx.drop(columns=['category'])
-# df_other = df_other.drop(columns=['category'])
-#
-# # In kết quả để kiểm tra
-# print("DataFrame con chứa PA:")
-# print(df_pa)
-#
+# Đọc file CSV đã chuẩn hóa vào DataFrame
+df = pd.read_csv(normalized_file, header=None)
+
+# Định nghĩa hàm để phân loại các nhóm
+def classify_category(value):
+    if value.startswith('/GDpa') or value.startswith('/GMpa'):
+        return 'pa'
+    elif value.startswith('/tx'):
+        return 'tx'
+    elif value.startswith('/rx'):
+        return 'rx'
+    else:
+        return 'other'
+
+# Thêm một cột mới 'category' dựa trên giá trị của cột đầu tiên
+df['category'] = df[0].apply(classify_category)
+
+# Chia DataFrame thành các DataFrame con dựa trên giá trị của cột 'category'
+df_pa = df[df['category'] == 'pa']
+df_tx = df[df['category'] == 'tx']
+df_rx = df[df['category'] == 'rx']
+df_other = df[df['category'] == 'other']
+
+# Loại bỏ cột 'category' nếu không cần thiết
+df_pa = df_pa.drop(columns=['category'])
+df_tx = df_tx.drop(columns=['category'])
+df_rx = df_rx.drop(columns=['category'])
+df_other = df_other.drop(columns=['category'])
+
+# In kết quả để kiểm tra
+print("DataFrame con chứa PA:")
+print(df_pa)
+
 #
 # df.to_csv('output.csv', index=False)
 # df_tx.to_csv('df_tx_hex.csv', index=False)
