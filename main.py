@@ -1,6 +1,60 @@
 import pandas as pd
 import csv
 import re
+import os
+
+
+# Directory
+input_folder = r"./DB files"
+temp_folder = r"./Temp"
+output_folder = r"./Output"
+# Xử lý txt to csv
+def process_txt_file(input_file_path, output_file_path, separator=','):
+    with open(input_file_path, 'r') as infile, open(output_file_path, 'w') as outfile:
+        current_line = ""
+
+        for line in infile:
+            # Loại bỏ ký tự NULL
+            line = line.replace('\x00', '')
+            # Kiểm tra nếu dòng bắt đầu bằng ký tự '/'
+            if line.startswith('/'):
+                # Nếu có một dòng hiện tại, lưu nó trước khi bắt đầu một dòng mới
+                if current_line:
+                    # Loại bỏ khoảng trắng thừa xung quanh dấu phẩy
+                    current_line = re.sub(r'\s*,\s*', ',', current_line.strip())
+                    # Thay thế các khoảng trắng liên tiếp bằng dấu phẩy hoặc dấu cách
+                    cleaned_line = re.sub(r'\s+', separator, current_line)
+                    outfile.write(cleaned_line + '\n')
+                # Bắt đầu một dòng mới
+                current_line = line.strip()
+            else:
+                # Nếu không, nối dòng hiện tại với dòng trước đó
+                current_line += " " + line.strip()
+
+        # Đừng quên lưu dòng cuối cùng
+        if current_line:
+            # Loại bỏ khoảng trắng thừa xung quanh dấu phẩy
+            current_line = re.sub(r'\s*,\s*', ',', current_line.strip())
+            # Thay thế các khoảng trắng liên tiếp bằng dấu phẩy hoặc dấu cách
+            cleaned_line = re.sub(r'\s+', separator, current_line)
+            outfile.write(cleaned_line + '\n')
+
+
+def process_directory(input_directory, output_directory, separator=','):
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    for filename in os.listdir(input_directory):
+        if filename.endswith('.txt'):  # Chỉ xử lý các tệp .txt
+            input_file_path = os.path.join(input_directory, filename)
+            output_file_name = os.path.splitext(filename)[0] + '.csv'
+            output_file_path = os.path.join(output_directory, output_file_name)
+            process_txt_file(input_file_path, output_file_path, separator)
+
+
+# Convert txt to CSV and save to Temp
+process_directory(input_folder, temp_folder)
+
 
 # Đọc file CSV và chuẩn hóa số lượng cột
 def normalize_csv(input_file, output_file):
